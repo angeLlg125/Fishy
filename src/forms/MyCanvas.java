@@ -16,8 +16,13 @@ public class MyCanvas extends JPanel {
 	
 	WallWorld world = new WallWorld();
 	int searchType = 0;
+	
+	boolean drawLines = false;
+	boolean drawContent = true;
+	boolean drawCircinferenceOnly = false;
+	
 	public MyCanvas() {
-		
+
 	}
 	
     @Override
@@ -38,19 +43,24 @@ public class MyCanvas extends JPanel {
         
         g.setColor(Constants.LIGHT_COLOR);
         // Search Intersections between lines
-        
         if(searchType == 0) {
-        	this.world.searchIntersectionsCircularForm(g);
+        	this.world.searchIntersectionsCircularForm(g, drawLines);
+        	
         }else if(searchType == 1){
-        	this.world.searchIntersectionsFullLight(g);
-        }else {
-        	this.world.searchIntersectionsNDegrees(g);
+        	this.world.searchIntersectionsFullLight(g, drawLines);
+        }else if(searchType == 2){
+        	this.world.searchIntersectionsNDegrees(g, drawLines);
+        }
+        
+        if(drawContent && !drawLines) {
+        	g.fillPolygon(this.world.fillX, this.world.fillY, this.world.fillX.length);
+        }else if(drawCircinferenceOnly) {
+        	g.drawPolygon(this.world.fillX, this.world.fillY, this.world.fillX.length);
         }
         
         g.setColor(Color.RED);
         Point lightDot = world.getLightDot().getLocation();
         g.fillOval(lightDot.getX() - Constants.CIRCLE_SIZE/2, lightDot.getY()-Constants.CIRCLE_SIZE/2, Constants.CIRCLE_SIZE, Constants.CIRCLE_SIZE);
-        
     }
     
     public void repaintCanvas() {
