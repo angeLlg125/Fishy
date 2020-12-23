@@ -6,8 +6,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-import javax.naming.spi.DirStateFactory.Result;
-
 import utils.Constants;
 
 public class WallWorld {
@@ -66,34 +64,68 @@ public class WallWorld {
 		return this.lightDot;
 	}
 	
-	public void searchIntersections(Graphics g) {
-		//this.searchPointIntersection(g, this.lightDot.getLine1());
+	public void searchIntersectionsFullLight(Graphics g) {
 		double angle = 0;
-		Point currentLine = lightDot.getLocation();
+		Point currentLine = new Point(lightDot.getLocation().getX(), lightDot.getLocation().getY());
 		
-		Point distance = new Point(currentLine.getX()+600, currentLine.getY()+600);
-		for (int i = 0; i < 2000; i++) {
+		Point distance = new Point(currentLine.getX() + Constants.SEARCH_DISTANCE, currentLine.getY() + Constants.SEARCH_DISTANCE);
+		for (int i = 0; i < 720; i++) {
 			double[] pt = {distance.getX(), distance.getY()};
 			AffineTransform.getRotateInstance(Math.toRadians(angle), currentLine.getX(), currentLine.getY()).transform(pt, 0, pt, 0, 1);
 			int newX = (int)pt[0];
 			int newY = (int)pt[1];
 			
-			distance = new Point(newX, newY);
 			this.searchPointIntersection(g, new Line(currentLine.getX(), currentLine.getY(), newX, newY));
-			angle+=.1;
+			angle += 0.5;
 		}
 	}
 	
-	private void searchPointIntersection(Graphics g, Line lineToEvaluate) {
+	public void searchIntersectionsNDegrees(Graphics g) {
+		double angle = lightDot.angle;
+		Point currentLine = lightDot.getLocation();
+		
+		Point distance = new Point(currentLine.getX() + Constants.SEARCH_DISTANCE, currentLine.getY() + Constants.SEARCH_DISTANCE);
+		for (int i = lightDot.angle; i < lightDot.angle + Constants.PARTIAL_CIRCLE_SIZE; i++) {
+			double[] pt = {distance.getX(), distance.getY()};
+			AffineTransform.getRotateInstance(Math.toRadians(angle), currentLine.getX(), currentLine.getY()).transform(pt, 0, pt, 0, 1);
+			int newX = (int)pt[0];
+			int newY = (int)pt[1];
+			
+			this.searchPointIntersection(g, new Line(currentLine.getX(), currentLine.getY(), newX, newY));
+			angle += 0.5;
+		}
+	}
+	
+	public void searchIntersectionsCircularForm(Graphics g) {
+		double angle = 0;
+		Point currentLine = lightDot.getLocation();
+		
+		Point distance = new Point(currentLine.getX() + Constants.SEARCH_DISTANCE_CIRCULAR, currentLine.getY() + Constants.SEARCH_DISTANCE_CIRCULAR);
+		for (int i = 0; i < 360; i++) {
+			double[] pt = {distance.getX(), distance.getY()};
+			AffineTransform.getRotateInstance(Math.toRadians(angle), currentLine.getX(), currentLine.getY()).transform(pt, 0, pt, 0, 1);
+			int newX = (int)pt[0];
+			int newY = (int)pt[1];
+			
+			boolean result = this.searchPointIntersection(g, new Line(currentLine.getX(), currentLine.getY(), newX, newY));
+			
+			if(!result) {
+				g.drawLine(currentLine.getX(), currentLine.getY(), newX, newY);
+			}
+			
+			angle += 1;
+		}
+	}
+	
+	private boolean searchPointIntersection(Graphics g, Line lineToEvaluate) {
 		Point currentPoint = null;
 		int currentDistance = 0;
 		for (int i = 0; i < gameWalls.size(); i++) {
 			Line line = this.getWall(i).getPoints();
 			
-			Point result = this.calculateLineIntersection(line.getPoint1(), line.getPoint2(), lineToEvaluate.getPoint1(), lineToEvaluate.getPoint2());
+			Point result = this.calculateLineIntersection(lineToEvaluate.getPoint1(), lineToEvaluate.getPoint2(), line.getPoint1(), line.getPoint2());
 
 			if(result != null) {
-				//g.fillOval(result.x -Constants.CIRCLE_SIZE/2, result.y-Constants.CIRCLE_SIZE/2, Constants.CIRCLE_SIZE, Constants.CIRCLE_SIZE);
 				if(currentPoint == null) {
 					currentPoint = result;
 					currentDistance = this.distanceBetweenPoints(this.lightDot.getLocation(), result);
@@ -111,8 +143,10 @@ public class WallWorld {
 		}
 		if(currentPoint != null) {
 			g.drawLine(lineToEvaluate.getP1X(), lineToEvaluate.getP1Y(), currentPoint.getX(), currentPoint.getY());
-	        //g.drawLine(lightDot.getLine2().getP1X(), lightDot.getLine2().getP1Y(), lightDot.getLine2().getP2X(), lightDot.getLine2().getP2Y());
-			//g.fillOval(currentPoint.x -Constants.CIRCLE_SIZE/2, currentPoint.y-Constants.CIRCLE_SIZE/2, Constants.CIRCLE_SIZE, Constants.CIRCLE_SIZE);
+			
+			return true;
+		}else {
+			return false;
 		}
 	}
 	
