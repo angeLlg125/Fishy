@@ -1,6 +1,6 @@
 package Fishy;
 
-import forms.MainForm;
+import forms.GameBoard;
 
 public class Fishy {
 
@@ -8,6 +8,6 @@ public class Fishy {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        MainForm fishy = new MainForm();
+        GameBoard fishy = new GameBoard();
     }
 }
