@@ -18,15 +18,15 @@ import utils.Constants;
  */
 public class GameBoard extends javax.swing.JFrame implements MouseMotionListener, KeyListener, MouseListener{
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	MyCanvas canvas = new MyCanvas();
     
     public GameBoard() {
         initComponents();
         // Define canvas components
+        Dimension dimension = new Dimension(Constants.MIN_WINDOWS_X, Constants.MIN_WINDOWS_Y);
+        
+        canvas.setMinimumSize(dimension);
         canvas.setSize(Constants.WINDOWS_X, Constants.WINDOWS_Y);
         canvas.setBackground(Color.yellow);
 
@@ -35,7 +35,6 @@ public class GameBoard extends javax.swing.JFrame implements MouseMotionListener
         this.setResizable(false);
 
         this.setSize(Constants.WINDOWS_X, Constants.WINDOWS_Y);
-        Dimension dimension = new Dimension(Constants.MIN_WINDOWS_X, Constants.MIN_WINDOWS_Y);
         this.setMinimumSize(dimension);
         this.add(canvas);
     }
@@ -57,6 +56,7 @@ public class GameBoard extends javax.swing.JFrame implements MouseMotionListener
 
         pack();
         
+        // Add listeners
         this.addMouseMotionListener(this);
         this.addKeyListener(this);
         this.addMouseListener(this);
@@ -68,7 +68,9 @@ public class GameBoard extends javax.swing.JFrame implements MouseMotionListener
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		if(this.canvas.searchType != 2) {
+		
+		// Mode 2 has to be controlled with keyboard
+		if(this.canvas.getLightType() != 2) {
 			this.getCoordinades(this.getInsets(), e);
 			
 			this.canvas.repaintCanvas();
@@ -78,25 +80,26 @@ public class GameBoard extends javax.swing.JFrame implements MouseMotionListener
 	@Override
 	public void keyPressed(KeyEvent e) {
 		
-		if(this.canvas.searchType == 2) {
-			Point point = this.canvas.world.getLightDot().getLocation();
+		// Mode 2 requires keyboard
+		if(this.canvas.getLightType() == 2) {
+			Point point = this.canvas.getWorld().getLightBulb().getLocation();
 
-			if(e.getKeyChar() == 'a') {//Right
-				this.canvas.world.getLightDot().setPoint(new Point(point.getX() - Constants.CIRCLE_SPEED, point.getY()));
-				this.canvas.world.getLightDot().setLocation(new Point(point.getX() - Constants.CIRCLE_SPEED, point.getY()));
-			}else if(e.getKeyChar() == 'd') {//right
-				this.canvas.world.getLightDot().setPoint(new Point(point.getX() + Constants.CIRCLE_SPEED, point.getY()));
-				this.canvas.world.getLightDot().setLocation(new Point(point.getX() + Constants.CIRCLE_SPEED, point.getY()));
+			if(e.getKeyChar() == 'a') {// Left
+				this.canvas.getWorld().getLightBulb().setPoint(new Point(point.getX() - Constants.LIGHT_BULB_SPEED, point.getY()));
+				this.canvas.getWorld().getLightBulb().setLocation(new Point(point.getX() - Constants.LIGHT_BULB_SPEED, point.getY()));
+			}else if(e.getKeyChar() == 'd') {// Right
+				this.canvas.getWorld().getLightBulb().setPoint(new Point(point.getX() + Constants.LIGHT_BULB_SPEED, point.getY()));
+				this.canvas.getWorld().getLightBulb().setLocation(new Point(point.getX() + Constants.LIGHT_BULB_SPEED, point.getY()));
 			}else if(e.getKeyChar() == 'w') {//Up
-				this.canvas.world.getLightDot().setPoint(new Point(point.getX(), point.getY() - Constants.CIRCLE_SPEED));
-				this.canvas.world.getLightDot().setLocation(new Point(point.getX(), point.getY() - Constants.CIRCLE_SPEED));
-			}else if(e.getKeyChar() == 's') {//Down
-				this.canvas.world.getLightDot().setPoint(new Point(point.getX(), point.getY() + Constants.CIRCLE_SPEED));
-				this.canvas.world.getLightDot().setLocation(new Point(point.getX(), point.getY() + Constants.CIRCLE_SPEED));
-			}else if(e.getKeyChar() == 'e') {//q
-				this.canvas.world.getLightDot().setAngle(this.canvas.world.getLightDot().getAngle() - Constants.CIRCLE_SPEED);
-			}else if(e.getKeyChar() == 'q') {//w
-				this.canvas.world.getLightDot().setAngle(this.canvas.world.getLightDot().getAngle() + Constants.CIRCLE_SPEED);
+				this.canvas.getWorld().getLightBulb().setPoint(new Point(point.getX(), point.getY() - Constants.LIGHT_BULB_SPEED));
+				this.canvas.getWorld().getLightBulb().setLocation(new Point(point.getX(), point.getY() - Constants.LIGHT_BULB_SPEED));
+			}else if(e.getKeyChar() == 's') {// Down
+				this.canvas.getWorld().getLightBulb().setPoint(new Point(point.getX(), point.getY() + Constants.LIGHT_BULB_SPEED));
+				this.canvas.getWorld().getLightBulb().setLocation(new Point(point.getX(), point.getY() + Constants.LIGHT_BULB_SPEED));
+			}else if(e.getKeyChar() == 'e') {// rotate clockwise
+				this.canvas.getWorld().getLightBulb().setAngle(this.canvas.getWorld().getLightBulb().getAngle() - Constants.LIGHT_BULB_SPEED);
+			}else if(e.getKeyChar() == 'q') {// rotate anti-clockwise
+				this.canvas.getWorld().getLightBulb().setAngle(this.canvas.getWorld().getLightBulb().getAngle() + Constants.LIGHT_BULB_SPEED);
 			}
 		
 			this.canvas.repaintCanvas();
@@ -113,16 +116,17 @@ public class GameBoard extends javax.swing.JFrame implements MouseMotionListener
 	}
 	
 	public void getCoordinades(Insets insets, MouseEvent e) {
-		this.canvas.world.getLightDot().setPoint(new Point(e.getX() - insets.left, e.getY()-insets.top));
-		this.canvas.world.getLightDot().setLocation(new Point(e.getX() - insets.left, e.getY()-insets.top));
+		this.canvas.getWorld().getLightBulb().setPoint(new Point(e.getX() - insets.left, e.getY()-insets.top));
+		this.canvas.getWorld().getLightBulb().setLocation(new Point(e.getX() - insets.left, e.getY()-insets.top));
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		this.canvas.searchType ++;
+		this.canvas.addAmountToSearchType(1);
 		
-		if(this.canvas.searchType == 3) {
-			this.canvas.searchType = 0;
+		// When search modes are completed, start program in mode 0
+		if(this.canvas.getLightType() == 3) {
+			this.canvas.restartSearchType();
 		}
 		this.canvas.repaintCanvas();
 		

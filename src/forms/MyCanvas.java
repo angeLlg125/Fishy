@@ -14,12 +14,15 @@ public class MyCanvas extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	
-	WallWorld world = new WallWorld();
-	int searchType = 0;
+	private WallWorld world = new WallWorld();
 	
-	boolean drawLines = false;
-	boolean drawContent = true;
-	boolean drawCircinferenceOnly = false;
+	// Change between 0 and 2, or click on the screen to see different light modes
+	private int lightType = 0;
+	
+	// Change variables to see different view modes
+	private boolean drawLines = false;
+	private boolean drawContent = false;
+	private boolean drawCircinference = true;
 	
 	public MyCanvas() {
 
@@ -42,28 +45,50 @@ public class MyCanvas extends JPanel {
         }
         
         g.setColor(Constants.LIGHT_COLOR);
-        // Search Intersections between lines
-        if(searchType == 0) {
+        // Search Intersections, depending of the searchType value
+        if(lightType == 0) {
         	this.world.searchIntersectionsCircularForm(g, drawLines);
-        	
-        }else if(searchType == 1){
+        }else if(lightType == 1){
         	this.world.searchIntersectionsFullLight(g, drawLines);
-        }else if(searchType == 2){
-        	this.world.searchIntersectionsNDegrees(g, drawLines);
+        }else if(lightType == 2){
+        	this.world.searchIntersectionsNDegrees(g, drawLines, drawContent);
+        }else {
+        	this.world.searchIntersectionsCircularForm(g, drawLines);
         }
         
+        // Draw circumference or fill figure. It depends of the flags
         if(drawContent && !drawLines) {
-        	g.fillPolygon(this.world.fillX, this.world.fillY, this.world.fillX.length);
-        }else if(drawCircinferenceOnly) {
-        	g.drawPolygon(this.world.fillX, this.world.fillY, this.world.fillX.length);
+        	g.fillPolygon(this.world.getFillX(), this.world.getFillY(), this.world.getFillX().length);
+        }else if(drawCircinference) {
+        	g.drawPolygon(this.world.getFillX(), this.world.getFillY(), this.world.getFillX().length);
         }
         
-        g.setColor(Color.RED);
-        Point lightDot = world.getLightDot().getLocation();
-        g.fillOval(lightDot.getX() - Constants.CIRCLE_SIZE/2, lightDot.getY()-Constants.CIRCLE_SIZE/2, Constants.CIRCLE_SIZE, Constants.CIRCLE_SIZE);
+        // Draw dot
+        g.setColor(Constants.CIRCLE_COLOR);
+        Point lightDot = world.getLightBulb().getLocation();
+        g.fillOval(lightDot.getX() - Constants.LIGHT_BULB_SIZE/2, 
+        		lightDot.getY()-Constants.LIGHT_BULB_SIZE/2, 
+        		Constants.LIGHT_BULB_SIZE, Constants.LIGHT_BULB_SIZE);
     }
     
     public void repaintCanvas() {
     	this.repaint();
     }
+    
+    public int getLightType() {
+    	return this.lightType;
+    }
+    
+    public WallWorld getWorld() {
+    	return this.world;
+    }
+    
+    public void addAmountToSearchType(int amount) {
+    	this.lightType += amount;
+    }
+    
+    public void restartSearchType() {
+    	this.lightType = 0;
+    }
+    
 }
