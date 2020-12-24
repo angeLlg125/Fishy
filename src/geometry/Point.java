@@ -1,7 +1,7 @@
 package geometry;
 
 public class Point {
-	int x, y;
+	private int x, y;
 	
 	public Point() {
 		

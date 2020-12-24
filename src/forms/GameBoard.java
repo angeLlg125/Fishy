@@ -27,7 +27,7 @@ public class GameBoard extends javax.swing.JFrame implements MouseMotionListener
         Dimension dimension = new Dimension(Constants.MIN_WINDOWS_X, Constants.MIN_WINDOWS_Y);
         
         canvas.setMinimumSize(dimension);
-        canvas.setSize(Constants.WINDOWS_X, Constants.WINDOWS_Y);
+        canvas.setSize(Constants.WINDOWS_X - this.getInsets().right - this.getInsets().left, Constants.WINDOWS_Y - this.getInsets().bottom - this.getInsets().top);
         canvas.setBackground(Color.yellow);
 
         this.pack();

@@ -1,7 +1,8 @@
 package forms;
 
-import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 import javax.swing.JPanel;
 
@@ -9,6 +10,7 @@ import geometry.Line;
 import geometry.Point;
 import geometry.WallWorld;
 import utils.Constants;
+import utils.Functions;
 
 public class MyCanvas extends JPanel {
 
@@ -23,9 +25,14 @@ public class MyCanvas extends JPanel {
 	private boolean drawLines = false;
 	private boolean drawContent = false;
 	private boolean drawCircinference = true;
+	private boolean drawShadows = true;
 	
+	Rectangle [] rec = new Rectangle[13];
 	public MyCanvas() {
-
+        for (int i = 0; i < 13; i++) {
+        	rec[i] = new Rectangle(Functions.getRandomNumber(0, Constants.WINDOWS_X), Functions.getRandomNumber(0, Constants.WINDOWS_Y), 
+        			20, 20);
+		}
 	}
 	
     @Override
@@ -35,6 +42,12 @@ public class MyCanvas extends JPanel {
         // Background
         g.setColor(Constants.BACK_GROUND);
         g.fillRect(0, 0, Constants.WINDOWS_X, Constants.WINDOWS_Y);
+        
+        g.setColor(Constants.CIRCLE_COLOR);
+        Graphics2D g2d = (Graphics2D) g;
+        for (int i = 0; i < 13; i++) {
+        	g2d.fill(rec[i]);
+		}
         
         // Draw walls
         g.setColor(Constants.LINE_COLOR);
@@ -47,19 +60,21 @@ public class MyCanvas extends JPanel {
         g.setColor(Constants.LIGHT_COLOR);
         // Search Intersections, depending of the searchType value
         if(lightType == 0) {
-        	this.world.searchIntersectionsCircularForm(g, drawLines);
+        	this.world.searchIntersectionsCircularForm(g, drawLines, drawShadows);
         }else if(lightType == 1){
-        	this.world.searchIntersectionsFullLight(g, drawLines);
+        	this.world.searchIntersectionsFullLight(g, drawLines, drawShadows);
         }else if(lightType == 2){
-        	this.world.searchIntersectionsNDegrees(g, drawLines, drawContent);
+        	this.world.searchIntersectionsNDegrees(g, drawLines, drawContent, drawShadows);
         }else {
-        	this.world.searchIntersectionsCircularForm(g, drawLines);
+        	this.world.searchIntersectionsCircularForm(g, drawLines, drawShadows); 
         }
         
         // Draw circumference or fill figure. It depends of the flags
         if(drawContent && !drawLines) {
+        	g.setColor(Constants.LIGHT_COLOR);
         	g.fillPolygon(this.world.getFillX(), this.world.getFillY(), this.world.getFillX().length);
         }else if(drawCircinference) {
+        	g.setColor(Constants.LIGHT_COLOR);
         	g.drawPolygon(this.world.getFillX(), this.world.getFillY(), this.world.getFillX().length);
         }
         

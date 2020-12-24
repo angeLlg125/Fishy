@@ -22,5 +22,5 @@ public final class Constants {
 	public static final int LIGHT_BULB_SPEED = 5;
 	
 	public static final int PARTIAL_CIRCLE_SIZE = 120;
-	public static final int RANDOM_LINES = 10;
+	public static final int RANDOM_LINES = 4;
 }
