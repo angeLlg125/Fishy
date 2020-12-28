@@ -1,25 +1,27 @@
 package geometry;
 
+import java.awt.geom.Point2D;
+
 public class LightBulb {
-	private Point location;
+	private Point2D location;
 	private int angle = 0;
 	
 	public LightBulb() {
 	}
 	
 	public LightBulb(int x, int y) {
-		location = new Point(x, y);
+		location = new Point2D.Double(x, y);
 	}
 	
-	public void setPoint(Point location) {
+	public void setPoint(Point2D location) {
 		this.location = location;
 	}
 	
-	public Point getLocation() {
+	public Point2D getLocation() {
 		return this.location;
 	}
 	
-	public void setLocation(Point location) {
+	public void setLocation(Point2D location) {
 		this.location = location;
 	}
 

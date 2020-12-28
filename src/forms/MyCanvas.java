@@ -3,11 +3,10 @@ package forms;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import javax.swing.JPanel;
 
-import geometry.Line;
-import geometry.Point;
 import geometry.WallWorld;
 import utils.Constants;
 import utils.Functions;
@@ -18,17 +17,22 @@ public class MyCanvas extends JPanel {
 	
 	private WallWorld world = new WallWorld();
 	
-	// Change between 0 and 2, or click on the screen to see different light modes
-	private int lightType = 0;
+	// Change between full, and partial circle, or click on the screen to see different light modes
+	private boolean isFullCircle = true;
 	
 	// Change variables to see different view modes
 	private boolean drawLines = false;
 	private boolean drawContent = false;
-	private boolean drawCircinference = true;
+	private boolean drawCircinference = false;
 	private boolean drawShadows = true;
+	
+	// This is to show the image example
+	private boolean showImage = true;
+	
 	
 	Rectangle [] rec = new Rectangle[13];
 	public MyCanvas() {
+
         for (int i = 0; i < 13; i++) {
         	rec[i] = new Rectangle(Functions.getRandomNumber(0, Constants.WINDOWS_X), Functions.getRandomNumber(0, Constants.WINDOWS_Y), 
         			20, 20);
@@ -38,35 +42,31 @@ public class MyCanvas extends JPanel {
     @Override
     public void paint(Graphics g) {
         super.paint(g);
-        
-        // Background
-        g.setColor(Constants.BACK_GROUND);
-        g.fillRect(0, 0, Constants.WINDOWS_X, Constants.WINDOWS_Y);
-        
-        g.setColor(Constants.CIRCLE_COLOR);
         Graphics2D g2d = (Graphics2D) g;
+        // Background
+        g2d.setColor(Constants.BACK_GROUND);
+        g2d.fillRect(0, 0, Constants.WINDOWS_X, Constants.WINDOWS_Y);
+        
+        g2d.setColor(Constants.CIRCLE_COLOR);
+        
         for (int i = 0; i < 13; i++) {
         	g2d.fill(rec[i]);
 		}
         
         // Draw walls
-        g.setColor(Constants.LINE_COLOR);
+        g2d.setColor(Constants.LINE_COLOR);
         for(int i = 0; i < world.getWallsLength(); i++) {
-            Line line = world.getWall(i).getPoints();
+            Line2D line = world.getWall(i).getPoints();
             
-            g.drawLine(line.getP1X(), line.getP1Y(), line.getP2X(), line.getP2Y());
+            g2d.drawLine((int)line.getP1().getX(), (int)line.getP1().getY(), (int)line.getP2().getX(), (int)line.getP2().getY());
         }
         
         g.setColor(Constants.LIGHT_COLOR);
-        // Search Intersections, depending of the searchType value
-        if(lightType == 0) {
-        	this.world.searchIntersectionsCircularForm(g, drawLines, drawShadows);
-        }else if(lightType == 1){
-        	this.world.searchIntersectionsFullLight(g, drawLines, drawShadows);
-        }else if(lightType == 2){
-        	this.world.searchIntersectionsNDegrees(g, drawLines, drawContent, drawShadows);
-        }else {
-        	this.world.searchIntersectionsCircularForm(g, drawLines, drawShadows); 
+        // Search Intersections, depending of the flag
+        if(isFullCircle) {
+        	this.world.searchIntersectionsCircularForm(g2d, drawLines, drawShadows, showImage);
+        }else{
+        	this.world.searchIntersectionsNDegrees(g2d, drawLines, drawContent, drawShadows, showImage);
         }
         
         // Draw circumference or fill figure. It depends of the flags
@@ -79,10 +79,10 @@ public class MyCanvas extends JPanel {
         }
         
         // Draw dot
-        g.setColor(Constants.CIRCLE_COLOR);
-        Point lightDot = world.getLightBulb().getLocation();
-        g.fillOval(lightDot.getX() - Constants.LIGHT_BULB_SIZE/2, 
-        		lightDot.getY()-Constants.LIGHT_BULB_SIZE/2, 
+        g2d.setColor(Constants.CIRCLE_COLOR);
+        Point2D lightDot = world.getLightBulb().getLocation();
+        g2d.fillOval((int)lightDot.getX() - Constants.LIGHT_BULB_SIZE/2, 
+        		(int)lightDot.getY()-Constants.LIGHT_BULB_SIZE/2, 
         		Constants.LIGHT_BULB_SIZE, Constants.LIGHT_BULB_SIZE);
     }
     
@@ -90,20 +90,15 @@ public class MyCanvas extends JPanel {
     	this.repaint();
     }
     
-    public int getLightType() {
-    	return this.lightType;
+    public boolean getIsFullCircle() {
+    	return this.isFullCircle;
     }
     
     public WallWorld getWorld() {
     	return this.world;
     }
     
-    public void addAmountToSearchType(int amount) {
-    	this.lightType += amount;
+    public void changeIsFullCircle() {
+    	this.isFullCircle = !this.isFullCircle;
     }
-    
-    public void restartSearchType() {
-    	this.lightType = 0;
-    }
-    
 }
